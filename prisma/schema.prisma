@@ -26,17 +26,17 @@ model Student {
 }
 
 model ClassRoom {
-  id       String @id @default(uuid())
-  name     String @unique
+  id         String @id @default(uuid())
+  name       String @unique
   teacher_id String
-  teacher  Teacher @relation(fields: [teacher_id], references: [id])
-  students StudentInClass[]
+  teacher    Teacher @relation(fields: [teacher_id], references: [id])
+  students   StudentInClass[]
 }
 
 model Teacher {
-  id       String @id @default(uuid())
-  name     String @unique
-  class    ClassRoom[]
+  id         String @id @default(uuid())
+  name       String @unique
+  class      ClassRoom[]
 }
 
 model StudentInClass {

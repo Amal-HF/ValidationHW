@@ -29,15 +29,17 @@ export const registerHandler = async(req:Request, res:Response) => {
 
 export const loginHandler = async(req:Request, res:Response) => {
     const {username, password} = req.body as User
-    const isValidUsername = await prisma.user.findFirst({
+    const isValidUsername = await prisma.user.findUnique({
         where: {username}
     })
+
     if(!isValidUsername){
         return res.status(400).json({
             message: 'wrong username or pass'
         })
     }
-    const isValidPass = await argon2.verify(user.password, password)
+    
+    const isValidPass = await argon2.verify(isValidUsername.password, password)
 
     if(!isValidPass){
         return res.status(400).json({
