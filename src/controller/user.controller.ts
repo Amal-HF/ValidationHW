@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Request, Response } from "express";
 import { prisma } from "../config/db";
 import * as argon2 from 'argon2';
+import * as jwt from 'jsonwebtoken'
 
 export const registerHandler = async(req:Request, res:Response) => {
     try {
@@ -32,22 +33,21 @@ export const loginHandler = async(req:Request, res:Response) => {
     const isValidUsername = await prisma.user.findUnique({
         where: {username}
     })
-
     if(!isValidUsername){
         return res.status(400).json({
             message: 'wrong username or pass'
         })
     }
-    
     const isValidPass = await argon2.verify(isValidUsername.password, password)
-
     if(!isValidPass){
         return res.status(400).json({
             message: 'wrong username or pass'
         })
     }
+    const token = jwt.sign({id:isValidUsername.id, role:isValidUsername.role}, process.env.JWT_SECRET as string)
     return res.status(200).json({
-        message: 'welcom back'
+        message: 'welcom back',
+        token,
     })
 };
 
