@@ -55,3 +55,15 @@ export const getAllUsersHandler = async(req:Request, res:Response) => {
     const users = await prisma.user.findMany();
     return res.status(200).json(users);    
 };
+
+export const adminHandler = async (req:Request, res:Response) => {
+    return res.status(200).json({
+        message: 'Hey Admin'
+    })
+}
+
+export const userHandler = async (req:Request, res:Response) => {
+    return res.status(200).json({
+        message: 'Hey User'
+    })
+}
