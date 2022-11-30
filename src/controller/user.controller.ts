@@ -50,3 +50,8 @@ export const loginHandler = async(req:Request, res:Response) => {
         message: 'welcom back'
     })
 };
+
+export const getAllUsersHandler = async(req:Request, res:Response) => {
+    const users = await prisma.user.findMany();
+    return res.status(200).json(users);    
+};

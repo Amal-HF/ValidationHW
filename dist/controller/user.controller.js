@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,11 +32,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerHandler = void 0;
+exports.loginHandler = exports.registerHandler = void 0;
 const db_1 = require("../config/db");
+const argon2 = __importStar(require("argon2"));
 const registerHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser = req.body;
+        const hashedPass = yield argon2.hash(newUser.password);
+        newUser.password = hashedPass;
         yield db_1.prisma.user.create({
             data: newUser
         });
@@ -31,12 +57,24 @@ const registerHandler = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.registerHandler = registerHandler;
-// export const loginHandler = async(req:Request, res:Response) => {
-//     const newUser = req.body as User
-//     await prisma.User.create({
-//         data: newUser
-//     });
-//     return res.status(201).json({
-//         message: 'new user added'
-//     })
-// };
+const loginHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username, password } = req.body;
+    const isValidUsername = yield db_1.prisma.user.findUnique({
+        where: { username }
+    });
+    if (!isValidUsername) {
+        return res.status(400).json({
+            message: 'wrong username or pass'
+        });
+    }
+    const isValidPass = yield argon2.verify(isValidUsername.password, password);
+    if (!isValidPass) {
+        return res.status(400).json({
+            message: 'wrong username or pass'
+        });
+    }
+    return res.status(200).json({
+        message: 'welcom back'
+    });
+});
+exports.loginHandler = loginHandler;

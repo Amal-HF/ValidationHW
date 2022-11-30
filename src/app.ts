@@ -11,8 +11,8 @@ app.use(express.json());
 connectDB();
 
 // middlewares
-app.use('api/v1/user', userRouter);
-app.use('api/v1/school',schoolRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/school',schoolRouter);
 
 
 const PORT = process.env.PORT || 5000
